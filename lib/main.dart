@@ -1,11 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uneed/db.dart';
 import 'package:uneed/screen/home.dart';
 import 'package:uneed/routes.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux) {
+    // Initialize FFI
+    sqfliteFfiInit();
+  }
+
+  databaseFactory = databaseFactoryFfi;
 
   runApp(const MyApp());
 }
@@ -37,7 +46,12 @@ class DatabaseInitializer extends StatelessWidget {
     } else if (snapshot.hasError) {
       return Scaffold(
         body: Center(
-          child: ElevatedButton(onPressed: () {}, child: const Icon(Icons.refresh))
+          child: Column(
+            children: [
+              Text(snapshot.error.toString()),
+              ElevatedButton(onPressed: () {}, child: const Icon(Icons.refresh))
+            ],
+          )
         ),
       );
     } else {
